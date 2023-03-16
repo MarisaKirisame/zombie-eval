@@ -34,7 +34,7 @@ update_repo () {
 	exit 1
     fi
     git pull
-    if [ -e "_build/ok" ] && [ $(< "_build/ok") != $(git rev-parse HEAD) ] ; then
+    if [ -e "_build/ok" ] && [ $(git rev-parse HEAD) != $(cat "_build/ok") ] ; then
 	rm "_build/ok"
     fi
 }
@@ -47,7 +47,7 @@ babl () {
     fi
     if [ ! -f "_build/ok" ] ; then
 	ninja -C _build install
-	$(git rev-parse HEAD) > "_build/ok"
+	git rev-parse HEAD > "_build/ok"
     fi
 }
 
@@ -56,13 +56,9 @@ gegl() {
     if [ ! -d "_build" ] ; then
 	meson _build --prefix=${install_dir} --buildtype=release -Db_lto=true
     fi
-    touch "_build/ok"
-    if [ $(< "_build/ok") != $(git rev-parse HEAD) ] ; then
-	rm "_build/ok"
-    fi
     if [ ! -f "_build/ok" ] ; then
 	ninja -C _build install
-	$(git rev-parse HEAD) > "_build/ok"
+	git rev-parse HEAD > "_build/ok"
     fi
 }
 
@@ -71,13 +67,9 @@ gimp() {
     if [ ! -d "_build" ] ; then
 	meson _build --prefix=${install_dir} --buildtype=release -Db_lto=true
     fi
-    touch "_build/ok"
-    if [ $(< "_build/ok") != $(git rev-parse HEAD) ] ; then
-	rm "_build/ok"
-    fi
     if [ ! -f "_build/ok" ] ; then
 	ninja -C _build install
-	$(git rev-parse HEAD) > "_build/ok"
+	git rev-parse HEAD > "_build/ok"
     fi
 }
 
