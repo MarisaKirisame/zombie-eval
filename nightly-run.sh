@@ -5,7 +5,6 @@ set -x
 
 zombie_eval_dir=$PWD
 
-rm -rf "third_party"
 mkdir -p "third_party"
 cd "third_party"
 third_party_dir=$PWD
