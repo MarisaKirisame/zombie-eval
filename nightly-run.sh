@@ -9,7 +9,7 @@ mkdir -p "third_party"
 cd "third_party"
 third_party_dir=$PWD
 
-install_dir=${zombie_eval_dir}/build
+install_dir=${zombie_eval_dir}/_build
 
 export PATH="${install_dir}/bin:$PATH"
 export PKG_CONFIG_PATH="${install_dir}/share/pkgconfig:${install_dir}/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
@@ -22,48 +22,62 @@ arch="$(dpkg-architecture -qDEB_HOST_MULTIARCH 2> /dev/null)"
 export PKG_CONFIG_PATH="${install_dir}/lib/${arch}/pkgconfig:$PKG_CONFIG_PATH"
 export LD_LIBRARY_PATH="${install_dir}/lib/${arch}:${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
-babl () {
+update_repo () {
     cd $third_party_dir
-    if [ ! -d "babl" ] ; then
-	git clone git@github.com:MarisaKirisame/babl.git
+    if [ ! -d "${1:?}" ] ; then
+	git clone "git@github.com:MarisaKirisame/${1:?}.git"
     fi
-    cd "babl"
+    cd "${1:?}"
+    git commit -am "save" || true
+    if [ $(git status --porcelain | wc -l) != "0" ]; then
+	echo "Git repo dirty. Quit."
+	exit 1
+    fi
     git pull
-    if [ ! -d "build" ] ; then
-	meson build --prefix=${install_dir} --buildtype=release -Db_lto=true
-	meson configure build -Denable-gir=true
+    if [ -e "_build/ok" ] && [ $(< "_build/ok") != $(git rev-parse HEAD) ] ; then
+	rm "_build/ok"
     fi
-    if [ ! -f "build/ok" ] ; then
-	ninja -C build install
-	touch "build/ok"
+}
+
+babl () {
+    update_repo "babl"
+    if [ ! -d "_build" ] ; then
+	meson _build --prefix=${install_dir} --buildtype=release -Db_lto=true
+	meson configure _build -Denable-gir=true
+    fi
+    if [ ! -f "_build/ok" ] ; then
+	ninja -C _build install
+	$(git rev-parse HEAD) > "_build/ok"
     fi
 }
 
 gegl() {
-    cd $third_party_dir
-    [ ! -d "gegl" ] && git clone git@github.com:MarisaKirisame/gegl.git
-    cd "gegl"
-    git pull
-    if [ ! -d "build" ] ; then
-	meson build --prefix=${install_dir} --buildtype=release -Db_lto=true
+    update_repo "gegl"
+    if [ ! -d "_build" ] ; then
+	meson _build --prefix=${install_dir} --buildtype=release -Db_lto=true
     fi
-    if [ ! -f "build/ok" ] ; then
-	ninja -C build install
-	touch "build/ok"
+    touch "_build/ok"
+    if [ $(< "_build/ok") != $(git rev-parse HEAD) ] ; then
+	rm "_build/ok"
+    fi
+    if [ ! -f "_build/ok" ] ; then
+	ninja -C _build install
+	$(git rev-parse HEAD) > "_build/ok"
     fi
 }
 
 gimp() {
-    cd $third_party_dir
-    [ ! -d "gimp" ] && git clone git@github.com:MarisaKirisame/gimp.git
-    cd "gimp"
-    git pull
-    if [ ! -d "build" ] ; then
-	meson build --prefix=${install_dir} --buildtype=release -Db_lto=true
+    update_repo "gimp"
+    if [ ! -d "_build" ] ; then
+	meson _build --prefix=${install_dir} --buildtype=release -Db_lto=true
     fi
-    if [ ! -f "build/ok" ] ; then
-	ninja -C build install
-	touch "build/ok"
+    touch "_build/ok"
+    if [ $(< "_build/ok") != $(git rev-parse HEAD) ] ; then
+	rm "_build/ok"
+    fi
+    if [ ! -f "_build/ok" ] ; then
+	ninja -C _build install
+	$(git rev-parse HEAD) > "_build/ok"
     fi
 }
 
