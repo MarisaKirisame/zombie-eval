@@ -22,27 +22,51 @@ arch="$(dpkg-architecture -qDEB_HOST_MULTIARCH 2> /dev/null)"
 export PKG_CONFIG_PATH="${install_dir}/lib/${arch}/pkgconfig:$PKG_CONFIG_PATH"
 export LD_LIBRARY_PATH="${install_dir}/lib/${arch}:${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
-[ ! -d "babl" ] && git clone git@github.com:MarisaKirisame/babl.git
-cd "babl"
-git pull
-meson build --prefix=${install_dir} --buildtype=release -Db_lto=true
-meson configure build -Denable-gir=true
-ninja -C build install
+babl () {
+    cd $third_party_dir
+    if [ ! -d "babl" ] ; then
+	git clone git@github.com:MarisaKirisame/babl.git
+    fi
+    cd "babl"
+    git pull
+    if [ ! -d "build" ] ; then
+	meson build --prefix=${install_dir} --buildtype=release -Db_lto=true
+	meson configure build -Denable-gir=true
+    fi
+    if [ ! -f "build/ok" ] ; then
+	ninja -C build install
+	touch "build/ok"
+    fi
+}
 
-cd $third_party_dir
+gegl() {
+    cd $third_party_dir
+    [ ! -d "gegl" ] && git clone git@github.com:MarisaKirisame/gegl.git
+    cd "gegl"
+    git pull
+    if [ ! -d "build" ] ; then
+	meson build --prefix=${install_dir} --buildtype=release -Db_lto=true
+    fi
+    if [ ! -f "build/ok" ] ; then
+	ninja -C build install
+	touch "build/ok"
+    fi
+}
 
-[ ! -d "gegl" ] && git clone git@github.com:MarisaKirisame/gegl.git
-cd "gegl"
-git pull
-meson build --prefix=${install_dir} --buildtype=release -Db_lto=true
-ninja -C build install
+gimp() {
+    cd $third_party_dir
+    [ ! -d "gimp" ] && git clone git@github.com:MarisaKirisame/gimp.git
+    cd "gimp"
+    git pull
+    if [ ! -d "build" ] ; then
+	meson build --prefix=${install_dir} --buildtype=release -Db_lto=true
+    fi
+    if [ ! -f "build/ok" ] ; then
+	ninja -C build install
+	touch "build/ok"
+    fi
+}
 
-cd $third_party_dir
-
-[ ! -d "gimp" ] && git clone git@github.com:MarisaKirisame/gimp.git
-cd "gimp"
-git pull
-meson build --prefix=${install_dir} --buildtype=release -Db_lto=true
-ninja -C build install
-
-cd $third_party_dir
+babl
+gegl
+gimp
