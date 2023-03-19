@@ -1,4 +1,4 @@
 .PHONY: nightly
 
 nightly:
-	sh nightly-run.sh
+	python3 nightly.py
