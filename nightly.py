@@ -39,9 +39,14 @@ def gegl():
 def gimp():
     update_repo("gimp")
     if not Path("_build").exists():
-        run(f"meson _build --prefix={install_dir} --buildtype=release -Db_lto=true")
+        run("mkdir _build")
+        os.chdir("_build")
+        run(f"../autogen.sh --prefix={install_dir} --disable-python")
+    os.chdir(third_party_dir)
+    os.chdir("gimp/_build")
     if not Path("_build/ok").exists():
-        run("ninja -C _build install")
+        run("make install")
+        os.chdir("../")
         run("git rev-parse HEAD > '_build/ok'")
 
 export_env_var()
