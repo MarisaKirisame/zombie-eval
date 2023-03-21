@@ -3,7 +3,6 @@ import os
 import subprocess
 
 zombie_eval_dir = Path.cwd()
-assert zombie_eval_dir.name == "zombie-eval"
 third_party_dir = Path("third_party").resolve()
 third_party_dir.mkdir(exist_ok=True)
 install_dir = Path("_build").resolve()
