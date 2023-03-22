@@ -46,7 +46,6 @@ class Module:
             run("rm '_build/ok'")
         assert self.is_dirty()
 
-    # todo: this assume individual build system will track cross-module dependncy correctly.
     def clean(self):
         assert self.is_dirty()
         os.chdir(self.path)
