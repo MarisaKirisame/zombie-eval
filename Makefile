@@ -1,4 +1,4 @@
 .PHONY: nightly
 
 nightly:
-	python3 nightly.py
+	python3 python/nightly.py

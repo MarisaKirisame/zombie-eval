@@ -3,71 +3,126 @@ import os
 import subprocess
 from common import *
 
-def update_repo(repo_name):
-    os.chdir(third_party_dir)
-    repo_path = Path(repo_name).resolve()
-    if not repo_path.exists():
-        run(f"git clone 'git@github.com:MarisaKirisame/{repo_name}.git'")
-    os.chdir(repo_path)
-    run("git pull")
-    run("git commit -am 'save' || true")
-    run("git push || true")
-    print(query("git status --porcelain"))
-    if query("git status --porcelain") != "":
-        print("Git repo dirty. Quit.")
-        raise
-    build_ok = Path("_build/ok")
-    if build_ok.exists() and query("git rev-parse HEAD") != query("cat '_build/ok'"):
-        run("rm '_build/ok'")
+class Module:
+    def __init__(self, name, dependency):
+        self.name = name
+        os.chdir(third_party_dir)
+        self.path = Path(self.name).resolve()
+        self.build_path = Path(self.name + "/_build").resolve()
+        self.build_ok_path = Path(self.name + "/_build/ok").resolve()
+        self.dependency = dependency
 
-def zombie():
-    update_repo("zombie")
-    if not Path("_build").exists():
-        run("mkdir _build")
-        os.chdir("_build")
-        run("cmake ../")
-    os.chdir(third_party_dir)
-    os.chdir("zombie")
-    if not Path("_build/ok").exists():
-        os.chdir("_build")
+        self.done = False
+        self.dependent = []
+
+        for m in self.dependency:
+            m.dependent.append(self)
+
+    def update(self):
+        os.chdir(third_party_dir)
+        if not self.path.exists():
+            run(f"git clone 'git@github.com:MarisaKirisame/{self.name}.git'")
+        os.chdir(self.path)
+        run("git pull")
+        run("git commit -am 'save' || true")
+        run("git push || true")
+        if query("git status --porcelain") != "":
+            print(query("git status --porcelain"))
+            print("Git repo dirty. Quit.")
+            raise
+
+    def build_impl(self):
+        raise NotImplementedError
+
+    def is_dirty(self):
+        os.chdir(self.path)
+        return not (self.build_ok_path.exists() and query("git rev-parse HEAD") == query("cat '_build/ok'"))
+
+    def dirty(self):
+        assert not self.done
+        os.chdir(self.path)
+        build_ok = Path("_build/ok")
+        if build_ok.exists():
+            run("rm '_build/ok'")
+        assert self.is_dirty()
+
+    # todo: this assume individual build system will track cross-module dependncy correctly.
+    def clean(self):
+        assert self.is_dirty()
+        os.chdir(self.path)
+        run("git rev-parse HEAD > '_build/ok'")
+        self.done = True
+        assert not self.is_dirty()
+
+    # cycle should not exist because dependency is a constructor parameter
+    def build(self):
+        if not self.done:
+            print(f"building {self.name}...")
+            self.update()
+            for m in self.dependency:
+                m.build()
+            if self.is_dirty():
+                print(f"working on {self.name}...")
+                os.chdir(self.path)
+                self.build_impl()
+                print(f"{self.name} work ok!")
+                for m in self.dependent:
+                    m.dirty()
+                self.clean()
+            print(f"{self.name} build ok!")
+
+class Zombie(Module):
+    def __init__(self):
+        super().__init__("zombie", [])
+
+    def build_impl(self):
+        if not Path("_build").exists():
+            run("mkdir _build")
+            os.chdir("_build")
+            run("cmake ../")
+        os.chdir(self.build_path)
         run(f"make DESTDIR={install_dir} install")
-        os.chdir("../")
-        run("git rev-parse HEAD > '_build/ok'")
 
-def babl():
-    update_repo("babl")
-    if not Path("_build").exists():
-        run(f"meson _build --prefix={install_dir} --buildtype=release -Db_lto=true")
-        run("meson configure _build -Denable-gir=true")
-    if not Path("_build/ok").exists():
+zombie = Zombie()
+
+class Babl(Module):
+    def __init__(self):
+        super().__init__("babl", [])
+
+    def build_impl(self):
+        if not Path("_build").exists():
+            run(f"meson _build --prefix={install_dir} --buildtype=release -Db_lto=true")
+            run("meson configure _build -Denable-gir=true")
         run("ninja -C _build install")
-        run("git rev-parse HEAD > '_build/ok'")
 
-def gegl():
-    update_repo("gegl")
-    if not Path("_build").exists():
-        run(f"meson _build --prefix={install_dir} --buildtype=release -Db_lto=true")
-    if not Path("_build/ok").exists():
+
+babl = Babl()
+
+class Gegl(Module):
+    def __init__(self):
+        super().__init__("gegl", [babl, zombie])
+
+    def build_impl(self):
+        if not Path("_build").exists():
+            run(f"meson _build --prefix={install_dir} --buildtype=release -Db_lto=true")
         run("ninja -C _build install")
-        run("git rev-parse HEAD > '_build/ok'")
 
-def gimp():
-    update_repo("gimp")
-    if not Path("_build").exists():
-        run("mkdir _build")
-        os.chdir("_build")
-        run(f"../autogen.sh --prefix={install_dir} --disable-python")
-    os.chdir(third_party_dir)
-    os.chdir("gimp")
-    if not Path("_build/ok").exists():
-        os.chdir("_build")
+gegl = Gegl()
+
+class Gimp(Module):
+    def __init__(self):
+        super().__init__("gimp", [gegl])
+
+    def build_impl(self):
+        if not Path("_build").exists():
+            run("mkdir _build")
+            os.chdir("_build")
+            run(f"../autogen.sh --prefix={install_dir} --disable-python")
+        os.chdir(self.build_path)
         run("make install")
-        os.chdir("../")
-        run("git rev-parse HEAD > '_build/ok'")
+
+gimp = Gimp()
 
 export_env_var()
-zombie()
-babl()
-gegl()
-zombie_gegl()
-gimp()
+
+gimp.build()
