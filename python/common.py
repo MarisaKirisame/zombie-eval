@@ -41,3 +41,7 @@ def export_env_var():
     GI_TYPELIB_PATH = "GI_TYPELIB_PATH"
     os.environ.setdefault(GI_TYPELIB_PATH, "")
     os.environ[GI_TYPELIB_PATH] += f":{install_dir}/lib/{arch}/girepository-1.0"
+
+    CMAKE_PREFIX_PATH = "CMAKE_PREFIX_PATH"
+    os.environ.setdefault(CMAKE_PREFIX_PATH, "")
+    os.environ[CMAKE_PREFIX_PATH] += f":{install_dir}"

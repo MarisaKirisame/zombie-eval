@@ -3,6 +3,8 @@ import os
 import subprocess
 from common import *
 
+USE_GIT = True
+
 class Module:
     def __init__(self, name, dependency):
         self.name = name
@@ -23,13 +25,14 @@ class Module:
         if not self.path.exists():
             run(f"git clone 'git@github.com:MarisaKirisame/{self.name}.git'")
         os.chdir(self.path)
-        run("git pull")
-        run("git commit -am 'save' || true")
-        run("git push || true")
-        if query("git status --porcelain") != "":
-            print(query("git status --porcelain"))
-            print("Git repo dirty. Quit.")
-            raise
+        if USE_GIT:
+            run("git pull")
+            run("git commit -am 'save' || true")
+            run("git push || true")
+            if query("git status --porcelain") != "":
+                print(query("git status --porcelain"))
+                print("Git repo dirty. Quit.")
+                raise
 
     def build_impl(self):
         raise NotImplementedError
@@ -78,9 +81,9 @@ class Zombie(Module):
         if not Path("_build").exists():
             run("mkdir _build")
             os.chdir("_build")
-            run("cmake ../")
+            run(f"cmake -DCMAKE_INSTALL_PREFIX={install_dir} ../")
         os.chdir(self.build_path)
-        run(f"make DESTDIR={install_dir} install")
+        run(f"make install")
 
 zombie = Zombie()
 
