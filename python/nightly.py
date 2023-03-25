@@ -122,6 +122,8 @@ class Gimp(Module):
             run(f"../autogen.sh --prefix={install_dir} --disable-python")
         os.chdir(self.build_path)
         run("make install")
+        os.chdir(zombie_eval_dir)
+        run("cp scripts/* _build/share/gimp/2.0/scripts")
 
 gimp = Gimp()
 
