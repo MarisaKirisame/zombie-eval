@@ -21,6 +21,25 @@ def timed(f):
     after = datetime.now()
     return (after - before).total_seconds()
 
+def set_zombie(use):
+    os.environ["USE_ZOMBIE"] = "1" if use else "0"
+
+def use_zombie():
+    set_zombie(True)
+
+def unuse_zombie():
+    set_zombie(False)
+
+def run_single_eval(name, data):
+    run(f"cp {cwd}/picture/picture.jpeg ./")
+    # we are measuring end to end time instead of cpu time,
+    # because when it is swapping cpu is idling.
+    used_time = timed(lambda: run(gimp_program + "|| true"))
+
+    print(f"running {name} take {used_time}")
+    data[f"{name}_used_time"] = used_time
+    run(f"mv picture.jpeg {name}.jpeg")
+
 def ng():
     dt = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     log_dir = f"log/{dt}"
@@ -28,19 +47,19 @@ def ng():
     os.chdir(log_dir)
 
     export_env_var()
-    os.environ["USE_ZOMBIE"] = "1"
-
-    run(f"cp {cwd}/picture/picture.jpeg ./")
-    # we are measuring end to end time instead of cpu time,
-    # because when it is swapping cpu is idling.
-    used_time = timed(lambda: run(gimp_program + "|| true"))
 
     data = {}
-    data["used_time"] = used_time
+
+    unuse_zombie()
+    run_single_eval("baseline", data)
+
+    use_zombie()
+    run_single_eval("zombie", data)
+
+    run(f"cp {cwd}/picture/picture.jpeg ./original.jpeg")
+
     with open('result.json', 'w') as f:
         json.dump(data, f)
-
-    run("rm picture.jpeg")
 
     os.chdir(cwd)
 
