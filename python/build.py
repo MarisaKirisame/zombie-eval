@@ -3,6 +3,9 @@ import os
 import subprocess
 from common import *
 import sys
+import getpass
+
+USERNAME = getpass.getuser()
 
 DEBUG = True
 
@@ -28,9 +31,9 @@ class Module:
             os.chdir(third_party_dir)
             if not m.path.exists():
                 run(f"git clone 'git@github.com:MarisaKirisame/{m.name}.git'")
-            else:
-                os.chdir(m.path)
-                run("git pull")
+            os.chdir(m.path)
+            run(f"git pull origin {USERNAME} || true")
+            run(f"git checkout {USERNAME} || git checkout -b {USERNAME}")
 
         self.recurse(worker)
 
@@ -87,7 +90,7 @@ class Module:
         def worker(m, x):
             os.chdir(third_party_dir)
             os.chdir(m.path)
-            run("git push")
+            run(f"git push --set-upstream origin {USERNAME}")
 
         self.recurse(worker)
 
