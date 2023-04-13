@@ -2,8 +2,8 @@ from pathlib import Path
 import os
 import subprocess
 from common import *
+import sys
 
-HAS_INTERNET = False
 DEBUG = True
 
 def build_type():
@@ -28,8 +28,18 @@ class Module:
             os.chdir(third_party_dir)
             if not m.path.exists():
                 run(f"git clone 'git@github.com:MarisaKirisame/{m.name}.git'")
-            os.chdir(m.path)
-            run("git pull")
+            else:
+                os.chdir(m.path)
+                run("git pull")
+
+        self.recurse(worker)
+
+    def cloned(self):
+        def worker(m, x):
+            os.chdir(third_party_dir)
+            return m.path.exists() and all(x)
+
+        return self.recurse(worker)
 
     def build_impl(self):
         raise NotImplementedError
@@ -51,6 +61,7 @@ class Module:
         run("git rev-parse HEAD > '_build/ok'")
         assert not self.is_dirty()
 
+    # cycle should not exist because dependency is a constructor parameter
     def recurse(self, f, visited=None):
         if visited is None:
             visited = {}
@@ -58,13 +69,13 @@ class Module:
             for m in self.dependency:
                 m.recurse(f, visited)
             visited[self] = f(self, [visited[m] for m in self.dependency])
+        return visited[self]
 
     def save(self):
         def worker(m, x):
             os.chdir(third_party_dir)
             os.chdir(m.path)
             run("git commit -am 'save' || true")
-            run("git push")
             if query("git status --porcelain") != "":
                 print(query("git status --porcelain"))
                 print("Git repo dirty. Quit.")
@@ -72,21 +83,30 @@ class Module:
 
         self.recurse(worker)
 
-    # cycle should not exist because dependency is a constructor parameter
+    def push(self):
+        def worker(m, x):
+            os.chdir(third_party_dir)
+            os.chdir(m.path)
+            run("git push")
+
+        self.recurse(worker)
+
+    # return whether any work is done
     def build(self):
         def worker(m, x):
-            m.update()
             if any(x):
                 m.dirty()
             if m.is_dirty():
+                print(f"building {m.name} as it is not clean...")
                 os.chdir(m.path)
                 m.build_impl()
                 m.clean()
-                return False
-            else:
+                print(f"{m.name} build ok!")
                 return True
+            else:
+                return False
 
-        self.recurse(worker)
+        return self.recurse(worker)
 
 class Zombie(Module):
     def __init__(self):
@@ -142,12 +162,22 @@ def build():
     export_env_var()
     gimp.save()
     gimp.build()
+    gimp.push()
 
 def setup():
     export_env_var()
     gimp.pull()
+    gimp.save()
     gimp.build()
+    gimp.push()
 
 if __name__ == "__main__":
-    assert(false)
-    build()
+    if len(sys.argv) == 1:
+        if gimp.cloned():
+            build()
+        else:
+            setup()
+    else:
+        assert len(sys.argv) == 2
+        assert sys.argv[1] == "pull"
+        setup()

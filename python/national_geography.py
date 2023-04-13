@@ -6,14 +6,14 @@ import json
 programs = ['(elsamuko-national-geographic-batch "picture.jpeg" 60 1 60 25 0.4 1 0)',
             '(gimp-quit 0)']
 
-DEBUG = False
+DEBUG = True
 
 cwd = os.getcwd()
 
 gimp_program = f"{cwd}/_build/bin/gimp-2.10 -i " + " ".join(["-b " + "\'" + x + "\'" for x in programs])
 
 if DEBUG:
-    gimp_program = f"gdb --args {gimp_program}"
+    gimp_program = f"gdb -return-child-result -ex='set confirm on' -ex=run -ex=quit --args {gimp_program}"
 
 def timed(f):
     before  = datetime.now()
@@ -55,6 +55,8 @@ def ng():
 
     use_zombie()
     run_single_eval("zombie", data)
+
+    run("compare -metric phash baseline.jpeg zombie.jpeg delta.jpeg || true")
 
     run(f"cp {cwd}/picture/picture.jpeg ./original.jpeg")
 
