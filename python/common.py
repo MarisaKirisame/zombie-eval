@@ -15,8 +15,8 @@ def run(script):
     subprocess.run(script, shell=True, check=True)
 
 def export_env_var():
-    arch = query("dpkg-architecture -qDEB_HOST_MULTIARCH 2> /dev/null").split()[0]
-    
+    arch = query("dpkg-architecture -qDEB_HOST_MULTIARCH 2> /dev/null || true").split()[0]
+
     os.environ['PATH'] += f":{install_dir}/bin"
     PKG_CONFIG_PATH = "PKG_CONFIG_PATH"
     os.environ.setdefault(PKG_CONFIG_PATH, "")

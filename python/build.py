@@ -5,7 +5,11 @@ from common import *
 import sys
 import getpass
 
-USERNAME = getpass.getuser()
+IS_NIGHTLY = False
+if IS_NIGHTLY:
+    USERNAME = "master"
+else:
+    USERNAME = getpass.getuser()
 
 DEBUG = True
 
