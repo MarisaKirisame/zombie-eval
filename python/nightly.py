@@ -21,6 +21,6 @@ with open("index.html", 'w') as f:
     f.write(f"zombie_used_time = {data['zombie_used_time']}")
 
 os.chdir(out_dir)
-run(f"scp -r -C {dt} uwplse.org:/var/www/zombie/")
+run(f"nightly-results publish {dt}")
 url = f"http://zombie.uwplse.org/{dt}"
 run(f"""nightly-results url {url} || true""")
