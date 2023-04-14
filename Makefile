@@ -8,7 +8,7 @@ eval:
 build:
 	python3 python/build.py
 
-nightly:
+nightly: clean
 	python3 python/build.py pull
 	python3 python/nightly.py
 
