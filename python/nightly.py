@@ -17,7 +17,8 @@ run(f"mkdir -p {out_dir_dt}")
 os.chdir(out_dir_dt)
 
 with open("index.html", 'w') as f:
-    f.write(f"{data['used_time']}")
+    f.write(f"baseline_used_time = {data['baseline_used_time']}")
+    f.write(f"zombie_used_time = {data['zombie_used_time']}")
 
 os.chdir(out_dir)
 run(f"scp -r -C {dt} uwplse.org:/var/www/zombie/")
