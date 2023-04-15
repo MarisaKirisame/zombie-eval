@@ -22,5 +22,3 @@ with open("index.html", 'w') as f:
 
 os.chdir(out_dir)
 run(f"nightly-results publish {dt}")
-url = f"http://zombie.uwplse.org/{dt}"
-run(f"""nightly-results url {url} || true""")
