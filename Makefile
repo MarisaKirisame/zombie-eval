@@ -3,7 +3,7 @@
 all: build eval
 
 eval:
-	python3 python/national_geography.py
+	python3 python/national_geographic.py
 
 build:
 	python3 python/build.py

@@ -133,7 +133,7 @@ class Babl(Module):
 
     def build_impl(self):
         if not Path("_build").exists():
-            run(f"meson _build --prefix={install_dir} --buildtype=release -Db_lto=true")
+            run(f"meson _build --prefix={install_dir} --buildtype=debug -Db_lto=true")
             run("meson configure _build -Denable-gir=true")
         run("ninja -C _build install")
 
