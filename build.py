@@ -8,6 +8,8 @@ def run_ok(cmd):
     return subprocess.run(cmd, shell=True).returncode == 0
 
 os.environ["PATH"] = os.environ["HOME"] + "/.local/share/coursier/bin:" + os.environ["PATH"]
+os.environ["PATH"] = os.environ["HOME"] + "/.cache/coursier/arc/https/github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.22%252B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.22_7.tar.gz/jdk-11.0.22+7/bin:" + os.environ["PATH"]
+os.environ["JAVA_HOME"] = os.environ["HOME"] + "/.cache/coursier/arc/https/github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.22%252B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.22_7.tar.gz/jdk-11.0.22+7"
 run("cat ~/.profile")
 print(os.environ["PATH"])
 
