@@ -7,7 +7,7 @@ def run(cmd):
 def run_ok(cmd):
     return subprocess.run(cmd, shell=True).returncode == 0
 
-os.environ["PATH"] = "~/.local/share/coursier/bin:" + os.environ["PATH"]
+os.environ["PATH"] = os.environ["HOME"] + "/.local/share/coursier/bin:" + os.environ["PATH"]
 print(os.environ["PATH"])
 print("Hello")
 
