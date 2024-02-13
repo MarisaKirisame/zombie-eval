@@ -9,6 +9,7 @@ def run_ok(cmd):
 
 os.environ["PATH"] = os.environ["HOME"] + "/.local/share/coursier/bin:" + os.environ["PATH"]
 run("cat ~/.profile")
+print(os.environ["PATH"])
 
 if not run_ok("mill -v"):
     run("""curl -fL "https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz" | gzip -d > cs""")
