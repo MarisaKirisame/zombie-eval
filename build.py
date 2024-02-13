@@ -8,8 +8,7 @@ def run_ok(cmd):
     return subprocess.run(cmd, shell=True).returncode == 0
 
 os.environ["PATH"] = os.environ["HOME"] + "/.local/share/coursier/bin:" + os.environ["PATH"]
-print(os.environ["PATH"])
-print("Hello")
+run("cat ~/.profile")
 
 if not run_ok("mill -v"):
     run("""curl -fL "https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz" | gzip -d > cs""")
