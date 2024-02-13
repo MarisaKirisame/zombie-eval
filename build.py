@@ -31,4 +31,4 @@ os.chdir("TVirus")
 run("git pull")
 
 run("python3 drive.py")
-run("python3 anal.py nightly")
+run("python3 anal.py")
