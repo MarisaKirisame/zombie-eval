@@ -7,7 +7,7 @@ def run(cmd):
 def run_ok(cmd):
     return subprocess.run(cmd, shell=True).returncode == 0
 
-os.environ["PATH"] = "~/share/coursier/bin:" + os.environ["PATH"]
+os.environ["PATH"] = "~/.local/share/coursier/bin:" + os.environ["PATH"]
 if not run_ok("mill -v"):
     run("""curl -fL "https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz" | gzip -d > cs""")
     run("chmod +x cs")
