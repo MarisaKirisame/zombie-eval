@@ -11,7 +11,7 @@ if not run_ok("mill -v"):
     run("""curl -fL "https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz" | gzip -d > cs""")
     run("chmod +x cs")
     run("yes | ./cs setup")
-    run("cs install mill")
+    run("./cs install mill")
 
 run("git clone git@github.com:MarisaKirisame/zombie.git || true")
 os.chdir("zombie")
