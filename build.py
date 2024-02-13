@@ -10,4 +10,9 @@ os.chdir("build")
 subprocess.run("cmake ..", shell=True, check=True)
 subprocess.run("make", shell=True, check=True)
 
+os.chdir("../..")
+subprocess.run("git clone git@github.com:MarisaKirisame/TVirus.git", shell=True, check=False)
+os.chdir("TVirus")
+subprocess.run("git pull", shell=True, check=False)
+
 print("hello world")
