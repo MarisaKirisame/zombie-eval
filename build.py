@@ -32,3 +32,5 @@ run("git pull")
 
 run("python3 drive.py")
 run("python3 anal.py")
+print("OK!")
+raise
