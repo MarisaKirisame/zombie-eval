@@ -8,6 +8,6 @@ subprocess.run("git pull", shell=True, check=False)
 subprocess.run("mkdir build", shell=True, check=False)
 os.chdir("build")
 subprocess.run("cmake ..", shell=True, check=True)
-subprocess.run("make install", shell=True, check=True)
+subprocess.run("make", shell=True, check=True)
 
 print("hello world")
