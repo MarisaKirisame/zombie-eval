@@ -9,6 +9,8 @@ def run_ok(cmd):
 
 os.environ["PATH"] = "~/.local/share/coursier/bin:" + os.environ["PATH"]
 print(os.environ["PATH"])
+print("Hello")
+
 if not run_ok("mill -v"):
     run("""curl -fL "https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz" | gzip -d > cs""")
     run("chmod +x cs")
