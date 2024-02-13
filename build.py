@@ -1,22 +1,28 @@
 import os
 import subprocess
 
-subprocess.run("""curl -fL "https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz" | gzip -d > cs""", shell=True, check=True)
-subprocess.run("chmod +x cs", shell=True, check=True)
-subprocess.run("yes | ./cs setup", shell=True, check=True)
+def run(cmd):
+    subprocess.run(cmd, shell=True, check=True)
 
-subprocess.run("ls", shell=True, check=True)
-subprocess.run("git clone git@github.com:MarisaKirisame/zombie.git", shell=True, check=False)
+def run_ok(cmd):
+    return subprocess.run(cmd, shell=True).returncode == 0
+
+if not run_ok("mill -v"):
+    run("""curl -fL "https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz" | gzip -d > cs""")
+    run("chmod +x cs")
+    run("yes | ./cs setup")
+
+run("git clone git@github.com:MarisaKirisame/zombie.git || true")
 os.chdir("zombie")
-subprocess.run("git pull", shell=True, check=False)
-subprocess.run("mkdir build", shell=True, check=False)
+run("git pull")
+run("mkdir build || true")
 os.chdir("build")
-subprocess.run("cmake ..", shell=True, check=True)
-subprocess.run("make", shell=True, check=True)
+run("cmake ..")
+run("make")
 
 os.chdir("../..")
-subprocess.run("git clone git@github.com:MarisaKirisame/TVirus.git", shell=True, check=False)
+run("git clone git@github.com:MarisaKirisame/TVirus.git || true")
 os.chdir("TVirus")
-subprocess.run("git pull", shell=True, check=False)
+run("git pull")
 
 raise
