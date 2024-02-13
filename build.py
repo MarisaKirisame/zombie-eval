@@ -1,6 +1,8 @@
 import os
 import subprocess
 
+subprocess.run("""curl -fL "https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz" | gzip -d > cs""". shell=True, check=True)
+
 subprocess.run("ls", shell=True, check=True)
 subprocess.run("git clone git@github.com:MarisaKirisame/zombie.git", shell=True, check=False)
 os.chdir("zombie")
