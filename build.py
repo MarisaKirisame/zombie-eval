@@ -31,7 +31,7 @@ os.chdir("zombie")
 run("git pull")
 run("mkdir build || true")
 os.chdir("build")
-run(f"cmake -DCMAKE_INSTALL_PREFIX={os.getcwd()}/local ..")
+run(f"cmake -DCMAKE_INSTALL_PREFIX=../../{os.getcwd()}/local ..")
 run("make install")
 run("ls local")
 
