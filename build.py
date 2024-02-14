@@ -25,7 +25,7 @@ if not run_ok("mill -v"):
     run("yes | ./cs setup")
     run("./cs install mill")
 
-run("git clome git@github.com:nlohmann/json.git || true")
+run("git clone git@github.com:nlohmann/json.git || true")
 
 run("git clone git@github.com:MarisaKirisame/zombie.git || true")
 os.chdir("zombie")
