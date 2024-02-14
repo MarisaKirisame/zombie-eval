@@ -17,7 +17,6 @@ append_envvar("PATH", os.environ["HOME"] + "/.local/share/coursier/bin")
 append_envvar("PATH", os.environ["HOME"] + "/.cache/coursier/arc/https/github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.22%252B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.22_7.tar.gz/jdk-11.0.22+7/bin")
 append_envvar("JAVA_HOME", os.environ["HOME"] + "/.cache/coursier/arc/https/github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.22%252B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.22_7.tar.gz/jdk-11.0.22+7")
 append_envvar("CPLUS_INCLUDE_PATH", os.getcwd() + "/json/single_include")
-print(os.environ["CPLUS_INCLUDE_PATH"])
 
 if not run_ok("mill -v"):
     run("""curl -fL "https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz" | gzip -d > cs""")
@@ -32,8 +31,9 @@ os.chdir("zombie")
 run("git pull")
 run("mkdir build || true")
 os.chdir("build")
-run("cmake ..")
+run(f"cmake -DCMAKE_INSTALL_PREFIX={os.getcwd()}/local ..")
 run("make install")
+run("ls local")
 
 os.chdir("../..")
 run("git clone git@github.com:MarisaKirisame/TVirus.git || true")
