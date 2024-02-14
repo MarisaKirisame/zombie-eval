@@ -7,10 +7,16 @@ def run(cmd):
 def run_ok(cmd):
     return subprocess.run(cmd, shell=True).returncode == 0
 
-os.environ["PATH"] = os.environ["HOME"] + "/.local/share/coursier/bin:" + os.environ["PATH"]
-os.environ["PATH"] = os.environ["HOME"] + "/.cache/coursier/arc/https/github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.22%252B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.22_7.tar.gz/jdk-11.0.22+7/bin:" + os.environ["PATH"]
-os.environ["JAVA_HOME"] = os.environ["HOME"] + "/.cache/coursier/arc/https/github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.22%252B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.22_7.tar.gz/jdk-11.0.22+7"
-os.environ["CPLUS_INCLUDE_PATH"] = os.getcwd() + "/nlohmann/single_include:" + os.environ["CPLUS_INCLUDE_PATH"]
+def append_envvar(name, val):
+    if name in os.environ:
+        os.environ[name] = val + ":" + os.environ[name]
+    else:
+        os.environ[name] = val
+
+append_envvar("PATH", os.environ["HOME"] + "/.local/share/coursier/bin")
+append_envvar("PATH", os.environ["HOME"] + "/.cache/coursier/arc/https/github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.22%252B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.22_7.tar.gz/jdk-11.0.22+7/bin")
+append_envvar("JAVA_HOME", os.environ["HOME"] + "/.cache/coursier/arc/https/github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.22%252B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.22_7.tar.gz/jdk-11.0.22+7")
+append_envvar("CPLUS_INCLUDE_PATH", os.getcwd() + "/nlohmann/single_include")
 print(os.environ["CPLUS_INCLUDE_PATH"])
 
 if not run_ok("mill -v"):
