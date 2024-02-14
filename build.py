@@ -33,7 +33,7 @@ run("git pull")
 run("mkdir build || true")
 os.chdir("build")
 run("cmake ..")
-run("make")
+run("make install")
 
 os.chdir("../..")
 run("git clone git@github.com:MarisaKirisame/TVirus.git || true")
