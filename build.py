@@ -33,7 +33,6 @@ run("mkdir build || true")
 os.chdir("build")
 run(f"cmake -DCMAKE_INSTALL_PREFIX={project_cwd}/local ..")
 run("make install")
-run("ls local")
 
 os.chdir("../..")
 run("git clone git@github.com:MarisaKirisame/TVirus.git || true")
