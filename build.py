@@ -18,7 +18,6 @@ project_cwd = os.getcwd()
 append_envvar("PATH", os.environ["HOME"] + "/.local/share/coursier/bin")
 append_envvar("PATH", os.environ["HOME"] + "/.cache/coursier/arc/https/github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.22%252B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.22_7.tar.gz/jdk-11.0.22+7/bin")
 append_envvar("JAVA_HOME", os.environ["HOME"] + "/.cache/coursier/arc/https/github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.22%252B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.22_7.tar.gz/jdk-11.0.22+7")
-append_envvar("CPLUS_INCLUDE_PATH", project_cwd + "/json/single_include")
 append_envvar("CPLUS_INCLUDE_PATH", project_cwd + "/local/include")
 
 if not run_ok("mill -v"):
@@ -26,8 +25,6 @@ if not run_ok("mill -v"):
     run("chmod +x cs")
     run("yes | ./cs setup")
     run("./cs install mill")
-
-run("git clone git@github.com:nlohmann/json.git || true")
 
 run("git clone git@github.com:MarisaKirisame/zombie.git || true")
 os.chdir("zombie")
